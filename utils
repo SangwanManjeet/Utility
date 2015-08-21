@@ -1,0 +1,41 @@
+ function iterateArray(array, callback, task) {
+    if (!callback || (typeof callback != 'function')) {
+        throw new Error("callback not defined");
+    }
+    if (!task || (typeof task != 'function')) {
+        throw new Error("task not defined");
+    }
+    try {
+        if (array && array.length > 0) {
+            var length = array.length;
+            var index = -1;
+            var arrayCallback = function (err, info) {
+                try {
+                    if (err) {
+                        callback(err);
+                        return;
+                    }
+                    index = index + 1;
+                    if ((index == length) || (info && info.return)) {
+                        callback(null, (info && info.data));
+                    } else {
+                        try {
+                            task(array[index], arrayCallback, index);
+                        } catch (e) {
+                            callback(e);
+                            return;
+                        }
+                    }
+                } catch (e) {
+                    callback(e);
+                }
+            };
+            arrayCallback();
+        } else {
+            callback();
+        }
+    } catch (e) {
+        callback(e);
+    }
+}
+
